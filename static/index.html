@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/style.css" />
+    <title>API</title>
+  </head>
+  <body>
+    <h1>Number API</h1>
+
+    <div>
+      <h2>Add Number</h2>
+      <input type="number" id="numberInput" placeholder="Enter a number" />
+      <button onclick="addNumber()">Add Number</button>
+    </div>
+
+    <div>
+      <h2>Numbers</h2>
+      <button onclick="getNumbers()">Get Numbers</button>
+      <ul id="numberList"></ul>
+    </div>
+
+    <div>
+      <h2>Sum of Numbers</h2>
+      <button onclick="getSum()">Get Sum</button>
+      <p id="sumResult"></p>
+    </div>
+
+    <script>
+      const apiUrl = "http://localhost:2007";
+
+      function getNumbers() {
+        fetch(`${apiUrl}/numbers`)
+          .then((response) => response.json())
+          .then((numbers) => {
+            const numberList = document.getElementById("numberList");
+            numberList.innerHTML = "";
+            numbers.forEach((number) => {
+              const listItem = document.createElement("li");
+              listItem.textContent = number;
+              numberList.appendChild(listItem);
+            });
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function addNumber() {
+        const number = document.getElementById("numberInput").value;
+        if (!number) {
+          alert("Please enter a number!");
+          return;
+        }
+
+        fetch(`${apiUrl}/numbers/${number}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((numbers) => {
+            getNumbers();
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function getSum() {
+        fetch(`${apiUrl}/sum`)
+          .then((response) => response.json())
+          .then((sum) => {
+            document.getElementById("sumResult").textContent = `Sum: ${sum}`;
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+    </script>
+  </body>
+</html>
