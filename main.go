@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -13,7 +12,10 @@ var numbers []int
 
 func getNumbers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(numbers)
+	err := json.NewEncoder(w).Encode(numbers)
+	if err != nil {
+		return
+	}
 }
 
 func addNumber(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +27,10 @@ func addNumber(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	numbers = append(numbers, num)
-	json.NewEncoder(w).Encode(numbers)
+	err = json.NewEncoder(w).Encode(numbers)
+	if err != nil {
+		return
+	}
 }
 
 func getSum(w http.ResponseWriter, r *http.Request) {
@@ -34,22 +39,19 @@ func getSum(w http.ResponseWriter, r *http.Request) {
 	for _, number := range numbers {
 		sum += number
 	}
-	json.NewEncoder(w).Encode(sum)
+	err := json.NewEncoder(w).Encode(sum)
+	if err != nil {
+		return
+	}
 }
 
 func main() {
 	r := mux.NewRouter()
 
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
-
 	r.HandleFunc("/numbers", getNumbers).Methods("GET")
 	r.HandleFunc("/numbers/{number}", addNumber).Methods("POST")
 	r.HandleFunc("/sum", getSum).Methods("GET")
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/index.html")
-	})
-
-	fmt.Println("Server is running on port 2007...")
-	log.Fatal(http.ListenAndServe(":2007", r))
+	log.Fatal(http.ListenAndServe("127.0.0.1:2007", r))
 }

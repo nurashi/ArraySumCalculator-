@@ -1,78 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/static/style.css" />
-    <title>API</title>
-  </head>
-  <body>
-    <h1>Number API</h1>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>basic API server</title>
+</head>
+<body>
 
-    <div>
-      <h2>Add Number</h2>
-      <input type="number" id="numberInput" placeholder="Enter a number" />
-      <button onclick="addNumber()">Add Number</button>
+<div class="container">
+    <h1>basic API server</h1>
+
+    <div class="mb-3">
+        <h2>Add Number</h2>
+        <input type="number" id="numberInput" placeholder="Enter a number">
+        <button onclick="addNumber()">Add</button>
     </div>
 
-    <div>
-      <h2>Numbers</h2>
-      <button onclick="getNumbers()">Get Numbers</button>
-      <ul id="numberList"></ul>
+    <div class="mb-3">
+        <h2>Numbers</h2>
+        <button onclick="getNumbers()">Get Numbers</button>
+        <ul id="numberList"></ul>
     </div>
 
-    <div>
-      <h2>Sum of Numbers</h2>
-      <button onclick="getSum()">Get Sum</button>
-      <p id="sumResult"></p>
+    <div class="mb-3">
+        <h2>Sum of Numbers</h2>
+        <button onclick="getSum()">Get Sum</button>
+        <p id="sumResult"></p>
     </div>
+</div>
 
-    <script>
-      const apiUrl = "http://localhost:2007";
+<script>
+    const apiUrl = "http://localhost:2007";
 
-      function getNumbers() {
-        fetch(`${apiUrl}/numbers`)
-          .then((response) => response.json())
-          .then((numbers) => {
-            const numberList = document.getElementById("numberList");
-            numberList.innerHTML = "";
-            numbers.forEach((number) => {
-              const listItem = document.createElement("li");
-              listItem.textContent = number;
-              numberList.appendChild(listItem);
-            });
-          })
-          .catch((error) => console.error("Error:", error));
-      }
+    function getNumbers() {
+        fetch(`${apiUrl}/numbers`,{
+            mode: 'same-origin'
+        })
+            .then(response => response.json())
+            .then(numbers => {
+                console.log(numbers);
+                const numberList = document.getElementById("numberList");
+                numberList.innerHTML = "";
+                numbers.forEach(number => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = number;
+                    numberList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error("Error:", error));
+    }
 
-      function addNumber() {
+    function addNumber() {
         const number = document.getElementById("numberInput").value;
         if (!number) {
-          alert("Please enter a number!");
-          return;
+            alert("Please enter a number!");
+            return;
         }
 
         fetch(`${apiUrl}/numbers/${number}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            mode: 'same-origin'
         })
-          .then((response) => response.json())
-          .then((numbers) => {
-            getNumbers();
-          })
-          .catch((error) => console.error("Error:", error));
-      }
+            .then(response => response.json())
+            .then(() => getNumbers())
+            .catch(error => console.error("Error:", error));
+    }
 
-      function getSum() {
-        fetch(`${apiUrl}/sum`)
-          .then((response) => response.json())
-          .then((sum) => {
-            document.getElementById("sumResult").textContent = `Sum: ${sum}`;
-          })
-          .catch((error) => console.error("Error:", error));
-      }
-    </script>
-  </body>
+    function getSum() {
+        fetch(`${apiUrl}/sum`, {
+            mode: 'same-origin'
+        })
+            .then(response => response.text())
+            .then(sum => {
+                document.getElementById("sumResult").textContent = `Sum: ${sum}`;
+            })
+            .catch(error => console.error("Error:", error));
+    }
+</script>
+
+</body>
 </html>
